@@ -19,4 +19,8 @@ tensorflow 1.12 <br>
 python 3.6
 
 ## Usage
+```
 sh train.atis.sh
+```
+
+FORK FOR DEEP LEARNING SUBJECT FOR ROBOTICS AND INTELLIGENT SYSTEMS MASTER'S DEGREE AT ULE

@@ -1,8 +1,8 @@
-for BATCH in 32 64
+for BATCH in 64
 do
-  for LR in 0.0025 0.001
+  for LR in 0.001
   do
-    for i in  96,96,16 80,80,8 80,80,16;
+    for i in  80,80,16;
     do IFS=","; set -- $i;
       for ENCODE_LAYER in 2
       do

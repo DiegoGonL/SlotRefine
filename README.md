@@ -1,5 +1,7 @@
 # SlotRefine: A Fast Non-Autoregressive Model for Joint Intent Detection and Slot Filling
 
+## FORK FOR DEEP LEARNING SUBJECT FOR ROBOTICS AND INTELLIGENT SYSTEMS MASTER'S DEGREE AT ULE
+
 ## Reference
 Main paper to be cited ([Di Wu et al., 2020](https://www.aclweb.org/anthology/2020.emnlp-main.152.pdf))
 
@@ -22,5 +24,7 @@ python 3.6
 ```
 sh train.atis.sh
 ```
-
-FORK FOR DEEP LEARNING SUBJECT FOR ROBOTICS AND INTELLIGENT SYSTEMS MASTER'S DEGREE AT ULE
+or
+```
+python main.py --patience=40 --dataset=atis --split=" " --max_epochs=200 --batch_size=128 --valid_data_path=test --lr=0.001 --alpha=0.5 --rm_nums=True --hidden_size=80 --filter_size=80 --num_heads=16 --encode_mode='UTF-8' --num_encoder_layers=2 --attention_dropout=0.05 --residual_dropout=0.1 --multiply_embedding_mode='none' --dump=True
+```

@@ -709,6 +709,9 @@ class NatSLU(Model):
             # pred_intent = outputs[1].argmax(-1).reshape(-1)     # [batch_size]
             pred_intent = outputs[1][:, :, 2:].argmax(-1).reshape(-1) + 2
             correct_intent = outputs[3]  # [batch_size]
+            intent_acc_sample_wise = correct_intent == pred_intent
+            intent_acc = intent_acc_sample_wise.astype(np.float)
+            intent_acc = np.mean(intent_acc) * 100.0
 
             # slot
             sequence_length = outputs[4]  # [batch_size, len, size]
@@ -717,11 +720,28 @@ class NatSLU(Model):
             # pred_slot = np.argmax(pred_slot, 2)     # [batch_size, len]
             pred_slot = pred_slot[:, :, 2:].argmax(-1) + 2
 
+            slot_acc_sample_wise = correct_slot == pred_slot  # [batch_size, max_len]
+            a = np.arange(correct_slot.shape[1])
+            mask = np.tile(np.expand_dims(a, 0), [correct_slot.shape[0], 1]) >= np.expand_dims(sequence_length, -1)
+
+            slot_acc_sample_wise = np.logical_or(mask, slot_acc_sample_wise)
+            slot_acc_sample_wise = np.logical_and.reduce(slot_acc_sample_wise, -1)
+            slot_acc_sample_wise = slot_acc_sample_wise.astype(np.float)
+            slot_acc = np.mean(slot_acc_sample_wise) * 100.0
+
+            # sent acc
+            sent_acc_sampel_wise = np.logical_and(intent_acc_sample_wise, slot_acc_sample_wise)
+            sent_acc = np.mean(sent_acc_sampel_wise.astype(np.float)) * 100.0
+
             # input sentence
             input_data = outputs[5]  # [batch_size, len]
 
             ref = []
             pred = []
+
+            # calculate slot F1
+            pred_slot_label = []
+            correct_slot_label = []
 
             for words, c_i, p_i, seq_len, c_slot, p_slot in zip(input_data, correct_intent, pred_intent,
                                                                 sequence_length, correct_slot, pred_slot):
@@ -735,7 +755,17 @@ class NatSLU(Model):
                     [self.seq_out_tokenizer.index_word[idx] for idx, _ in zip(p_slot, range(seq_len))])
                 ref.append('\t'.join([words_output, c_i_output, c_slot_output]))
                 pred.append('\t'.join([words_output, p_i_output, p_slot_output]))
-            return ref, pred
+
+                pred_temp = []
+                correct_temp = []
+                for i in range(seq_len):
+                    pred_temp.append(self.seq_out_tokenizer.index_word[p_slot[i]])
+                    correct_temp.append(self.seq_out_tokenizer.index_word[c_slot[i]])
+                pred_slot_label.append(pred_temp)
+                correct_slot_label.append(correct_temp)
+
+            f1, precision, recall = local_utils.computeF1Score(correct_slot_label, pred_slot_label)
+            return ref, pred, f1, precision, recall, slot_acc, intent_acc, sent_acc
 
         step = 0
         if dump:
@@ -776,12 +806,13 @@ class NatSLU(Model):
             # output
             cnt += self.arg.batch_size
             if dump:
-                ref_batch, pred_batch = post_process(infer_outputs)
+                ref_batch, pred_batch, f1, precision, recall, slot_acc, intent_acc, sent_acc = post_process(infer_outputs)
                 for ref_line, pred_line in zip(ref_batch, pred_batch):
                     # if diff and ref_line == pred_line:
                     #     continue
                     fout.write(ref_line + '\n')
                     fout.write(pred_line + '\n')
+                fout.write("F1: {}, precision: {}, recall: {}".format(f1, precision, recall))
 
             if last_batch:
                 break
@@ -827,6 +858,9 @@ class NatSLU(Model):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
+
+    if not os.path.isdir('./log'):
+        os.mkdir('./log')
 
     # fmt: off
     parser.add_argument('-name', dest="name", default='default-SLU', help='Name of the run')

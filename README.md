@@ -20,6 +20,13 @@ Our system is build upon the [THUMT](https://github.com/THUNLP-MT/THUMT) codebas
 tensorflow 1.12 <br>
 python 3.6
 
+## Setup
+There's an environment.yml file in the root directory. You can use it to create a conda environment with all the dependencies.
+Use the following command to create the environment:
+```
+conda env create -f environment.yml
+```
+
 ## Usage
 ```
 sh train.atis.sh

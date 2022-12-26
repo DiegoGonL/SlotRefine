@@ -806,13 +806,15 @@ class NatSLU(Model):
             # output
             cnt += self.arg.batch_size
             if dump:
-                ref_batch, pred_batch, f1, precision, recall, slot_acc, intent_acc, sent_acc = post_process(infer_outputs)
+                ref_batch, pred_batch, f1, precision, recall, slot_acc, intent_acc, sent_acc = post_process(
+                    infer_outputs)
                 for ref_line, pred_line in zip(ref_batch, pred_batch):
                     # if diff and ref_line == pred_line:
                     #     continue
                     fout.write(ref_line + '\n')
                     fout.write(pred_line + '\n')
-                fout.write("F1: {}, precision: {}, recall: {}".format(f1, precision, recall))
+                fout.write(f'F1: {f1}, precision: {precision}, recall: {recall}, slot_acc: {slot_acc}, '
+                           f'intent_acc: {intent_acc}, sent_acc: {sent_acc}')
 
             if last_batch:
                 break
@@ -853,7 +855,6 @@ class NatSLU(Model):
 
         # save the model after the training
         self.saver.save(sess, self.save_path, global_step=self.arg.max_epochs)
-
 
 
 if __name__ == "__main__":

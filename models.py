@@ -637,10 +637,11 @@ class NatSLU(Model):
             f1, precision, recall = local_utils.computeF1Score(correct_slot_label, pred_slot_label)
             # print("F1: {}, precision: {}, recall: {}".format(f1, precision, recall))
 
-            return f1, slot_acc, intent_acc, sent_acc
+            return f1, precision, slot_acc, intent_acc, sent_acc
 
         step = 0
         f1 = 0
+        precision = 0
         slot_acc = 0
         intent_acc = 0
         sent_acc = 0
@@ -677,7 +678,7 @@ class NatSLU(Model):
                 print("Runtime Error in evaluation")
                 break
 
-            f1_batch, slot_acc_batch, intent_acc_batch, sent_acc_batch = valid(eval_outputs)
+            f1_batch, precision, slot_acc_batch, intent_acc_batch, sent_acc_batch = valid(eval_outputs)
 
             f1 = (f1 * sample_cnt + f1_batch * len(eval_outputs[0])) \
                  / (sample_cnt + len(eval_outputs[0]))
@@ -692,8 +693,8 @@ class NatSLU(Model):
             if last_batch:
                 break
 
-        print("Eval Results: F1: {}, intent_acc: {}, slot_acc: {}, sent_acc: {}".format(f1, intent_acc,
-                                                                                        slot_acc, sent_acc))
+        print("Eval Results: F1: {}, precision: {}, intent_acc: {}, slot_acc: {}, sent_acc: {}".format(f1, precision,
+                                                                                        intent_acc, slot_acc, sent_acc))
         print("Running Params: {}-{}-{}-{}-{}-{}-{}-{}".format(self.arg.batch_size, self.arg.lr, self.arg.hidden_size,
                                                                self.arg.filter_size, self.arg.num_heads,
                                                                self.arg.num_encoder_layers,

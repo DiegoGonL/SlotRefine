@@ -869,7 +869,7 @@ if __name__ == "__main__":
         os.mkdir('./log')
 
     with open('./log/eval_result.csv', 'w') as f:
-        f.write('F1,precision,recall,slot_acc,intent_acc,sent_acc\n')
+        f.write('F1,precision,slot_acc,intent_acc,sent_acc\n')
 
     # fmt: off
     parser.add_argument('-name', dest="name", default='default-SLU', help='Name of the run')

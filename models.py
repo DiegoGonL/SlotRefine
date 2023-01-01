@@ -851,13 +851,8 @@ class NatSLU(Model):
 
             self.evaluation(sess)
 
-            if self.arg.dump:
-                if epoch % 20 == 0:
-                    self.inference(sess, epoch, self.arg.remain_diff, self.arg.dump)
-            else:
-                print('dump is False')
-                self.inference(sess, epoch, self.arg.remain_diff, self.arg.dump)
-
+        if self.arg.dump:
+            self.inference(sess, epoch, self.arg.remain_diff, self.arg.dump)
         # save the model after the training
         self.saver.save(sess, self.save_path, global_step=self.arg.max_epochs)
 

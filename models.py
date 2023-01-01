@@ -695,12 +695,16 @@ class NatSLU(Model):
 
         print("Eval Results: F1: {}, precision: {}, intent_acc: {}, slot_acc: {}, sent_acc: {}".format(f1, precision,
                                                                                         intent_acc, slot_acc, sent_acc))
+        # append to eval_result.csv file the metrics
+        with open('./log/eval_result.csv', 'a') as f:
+            f.write('{}, {}, {}, {}, {}\n'.format(f1, precision, intent_acc, slot_acc, sent_acc))
+
         print("Running Params: {}-{}-{}-{}-{}-{}-{}-{}".format(self.arg.batch_size, self.arg.lr, self.arg.hidden_size,
                                                                self.arg.filter_size, self.arg.num_heads,
                                                                self.arg.num_encoder_layers,
                                                                self.arg.attention_dropout, self.arg.residual_dropout))
 
-        return f1, slot_acc, intent_acc, sent_acc
+        return f1, precision, slot_acc, intent_acc, sent_acc
 
     def inference(self, sess, epoch, diff, dump):
         """Do Inferance"""
@@ -863,6 +867,9 @@ if __name__ == "__main__":
 
     if not os.path.isdir('./log'):
         os.mkdir('./log')
+
+    with open('./log/eval_result.csv', 'w') as f:
+        f.write('F1,precision,recall,slot_acc,intent_acc,sent_acc\n')
 
     # fmt: off
     parser.add_argument('-name', dest="name", default='default-SLU', help='Name of the run')
